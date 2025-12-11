@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<title>Reiseregning SGS 1010</title>
+<style>
+    /* --- SKJERMSTIL (VISES PÅ PC) --- */
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+    .container { max-width: 1100px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    
+    h1 { color: #0056b3; margin-top: 0; border-bottom: 2px solid #0056b3; padding-bottom: 10px; }
+    h2, h3 { color: #444; margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    
+    .panel { background: #e7f3ff; padding: 20px; border-radius: 8px; border: 1px solid #b3d7ff; margin-bottom: 20px; }
+    .row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 15px; }
+    .col { flex: 1; min-width: 200px; }
+    
+    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: #555; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; box-sizing: border-box; }
+    
+    /* Resultatfelt på skjerm */
+    #outputRate { background-color: #d1fae5; border-color: #34d399; color: #065f46; font-weight: bold; }
+
+    /* Knapper (Skjules på print) */
+    .btn-action {
+        background-color: #2563eb; color: white; border: none; padding: 12px 25px;
+        font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold;
+        transition: background 0.2s; margin-right: 10px;
+    }
+    .btn-action:hover { background-color: #1d4ed8; }
+    .btn-print { background-color: #059669; }
+    .btn-print:hover { background-color: #047857; }
+
+    /* Tabell */
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
+    th { background: #f8f9fa; text-align: center; padding: 10px; border: 1px solid #ddd; vertical-align: bottom;}
+    td { padding: 8px; border: 1px solid #ddd; text-align: center; }
+    input.small-num { width: 100%; text-align: center; }
+
+    /* Kolonnefarger på skjerm */
+    .th-fratrekk { background-color: #ffe4e6; border-bottom: 2px solid #e11d48; }
+    .col-fratrekk { background-color: #fff1f2; }
+    .th-pluss { background-color: #dcfce7; border-bottom: 2px solid #16a34a; }
+    
+    .result-area {
+        background: #f0fdf4; border: 2px solid #bbf7d0; color: #064e3b;
+        padding: 20px; border-radius: 8px; margin-top: 20px; display: none;
+    }
+    .big-sum { font-size: 1.6em; font-weight: 800; color: #16a34a; margin-top: 10px; border-top: 1px solid #bbf7d0; padding-top: 10px; }
+    
+    .signature-section { display: none; margin-top: 50px; }
+
+    /* --- UTSKRIFTSSTIL (PDF / PAPIR) --- */
+    @media print {
+        body { background: white; padding: 0; font-size: 12pt; color: black; }
+        .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; margin: 0; }
+        
+        /* Skjul elementer som ikke trengs på papir */
+        .no-print, button, #infoText, .panel-help { display: none !important; }
+        
+        /* Fjern bakgrunnsfarger og rammer */
+        .panel, .result-area, input, select { 
+            background: white !important; 
+            border: none !important; 
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin-bottom: 5px !important;
+            color: black !important;
+        }
+        
+        /* Gjør inputfelter om til "tekst" */
+        input[type="text"], input[type="number"], input[type="date"], select {
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: bold;
+            text-align: left;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: auto;
+            display: inline-block;
+        }
+        
+        /* Tabelljusteringer for print */
+        table { border: 1px solid black; width: 100%; }
+        th, td { border: 1px solid black; padding: 5px; text-align: center; }
+        th { background-color: #eee !important; font-weight: bold; }
+        
+        /* Tving farger til å bli hvite/grå */
+        .th-fratrekk, .th-pluss, .col-fratrekk { background-color: transparent !important; border: 1px solid black !important; }
+        
+        /* Resultatboks */
+        .result-area { display: block !important; border: 2px solid black !important; margin-top: 20px; padding: 10px !important; }
+        .big-sum { border-top: 1px solid black; color: black !important; }
+        
+        /* Vis signaturfelt */
+        .signature-section { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 20px; }
+        .sig-line { border-top: 1px solid black; width: 200px; margin-top: 40px; }
+        
+        /* Overskrifter */
+        h1 { font-size: 18pt; margin-bottom: 20px; border-bottom: 2px solid black; }
+        h3 { font-size: 14pt; margin-top: 20px; border-bottom: 1px solid black; }
+        
+        /* Juster layout for felter */
+        .row { display: flex; flex-direction: row; gap: 40px; margin-bottom: 10px; }
+        .col { flex: 1; }
+        label { font-size: 0.8em; text-transform: uppercase; color: #666; margin-bottom: 0; }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Kravskjema: SGS 1010 / Reise</h1>
+
+    <div class="row">
+        <div class="col">
+            <label>Navn på ansatt</label>
+            <input type="text" placeholder="Skriv navnet ditt her..." style="font-size:1.1em;">
+        </div>
+        <div class="col">
+            <label>Ansattnummer / Fødselsdato</label>
+            <input type="text" placeholder="F.eks. 123456">
+        </div>
+        <div class="col">
+            <label>Avdeling / Skole</label>
+            <input type="text" placeholder="Skriv arbeidssted...">
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3>1. Beregningsgrunnlag</h3>
+        <div class="row">
+            <div class="col">
+                <label>Årslønn (kr)</label>
+                <input type="text" inputmode="numeric" id="inputSalary" value="682500" oninput="beregnTimesats()">
+            </div>
+            <div class="col">
+                <label>Årsverk (timer)</label>
+                <input type="text" inputmode="decimal" id="inputHours" value="1687,5" oninput="beregnTimesats()">
+            </div>
+            <div class="col">
+                <label>Timesats (Beregnet)</label>
+                <input type="text" id="outputRate" readonly value="Beregner...">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label>Avtaleverk</label>
+            <select id="selectType" onchange="håndterAvtaleValg()">
+                <option value="DEL1">Del I - Elevfølge / Andre reiser (Time for time)</option>
+                <option value="IIA">Del II A - Leirskole Norge</option>
+                <option value="IIB">Del II B - Utlandstur</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label>Reise start (Dato)</label>
+            <input type="date" id="dateStart">
+        </div>
+        <div class="col">
+            <label>Reise slutt (Dato)</label>
+            <input type="date" id="dateEnd">
+        </div>
+    </div>
+    
+    <div class="no-print" style="margin-top:20px;">
+        <button type="button" class="btn-action" onclick="lagTimeliste()">Opprett Timeliste</button>
+        <div id="infoText" style="margin-top:10px; font-size:0.9em; color:#555; padding:10px; background:#f9f9f9;"></div>
+    </div>
+
+    <div id="sheetArea" style="display:none;">
+        <h3>2. Timeliste og Tillegg</h3>
+        
+        <table id="calcTable">
+            <thead>
+                <tr>
+                    <th style="width:15%">Dato</th>
+                    <th style="width:10%">SGS Sats</th>
+                    <th class="th-fratrekk">Ordinær tid<br><small>(Fratrekk)</small></th>
+                    <th class="th-pluss">Aktiv/Tilsyn<br><small>(100%)</small></th>
+                    <th class="th-pluss">Reise U/tilsyn<br><small>(50%)</small></th>
+                    <th class="th-pluss">Passiv/Hvile<br><small>(33%)</small></th>
+                    <th class="th-pluss">Utrykning<br><small>(150%)</small></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div id="resultArea" class="result-area">
+        <h3>3. Beregnet Krav</h3>
+        <div id="resultContent"></div>
+    </div>
+
+    <div class="signature-section">
+        <div>
+            <div class="sig-line"></div>
+            <label>Dato og Sted</label>
+        </div>
+        <div>
+            <div class="sig-line"></div>
+            <label>Underskrift Ansatt</label>
+        </div>
+        <div>
+            <div class="sig-line"></div>
+            <label>Godkjent av Leder</label>
+        </div>
+    </div>
+    
+    <div class="no-print" style="margin-top:30px; text-align:center;">
+        <button type="button" class="btn-action btn-print" onclick="window.print()">🖨️ Skriv ut / Lagre som PDF</button>
+    </div>
+</div>
+
+<script>
+    var timesats = 0;
+    
+    // Satser 2025
+    var SATS = {
+        DEL1: { wd: 525, we: 525, freeHours: 0 },
+        IIA:  { wd: 1545, we: 1890, freeHours: 9 },
+        IIB:  { wd: 1870, we: 2250, freeHours: 12 }
+    };
+
+    function lesTall(val) {
+        if(typeof val !== 'string') return val;
+        var clean = val.replace(/\s/g, '').replace(',', '.');
+        var num = parseFloat(clean);
+        return isNaN(num) ? 0 : num;
+    }
+    
+    function kr(belop) {
+        return belop.toLocaleString('no-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    window.onload = function() {
+        beregnTimesats();
+        håndterAvtaleValg();
+        // Sett datoer hvis tomme
+        var today = new Date().toISOString().split('T')[0];
+        if(!document.getElementById('dateStart').value) {
+            document.getElementById('dateStart').value = today;
+            document.getElementById('dateEnd').value = today;
+        }
+    };
+
+    function beregnTimesats() {
+        var lonn = lesTall(document.getElementById('inputSalary').value);
+        var timer = lesTall(document.getElementById('inputHours').value);
+        if (lonn > 0 && timer > 0) {
+            timesats = lonn / timer;
+            document.getElementById('outputRate').value = kr(timesats) + " kr";
+        } else {
+            timesats = 0;
+        }
+        if(document.getElementById('sheetArea').style.display !== 'none') beregnTotal();
+    }
+
+    function håndterAvtaleValg() {
+        var type = document.getElementById('selectType').value;
+        var txt = "";
+        if(type === "DEL1") txt = "Bruk denne for Sjøglimt-turen. Fyll inn timer. Skjemaet trekker automatisk fra 'Ordinær tid' og legger til 'Utrykning'.";
+        else txt = "Bruk denne for standard leirskoleopphold.";
+        document.getElementById('infoText').innerHTML = txt;
+        
+        if(document.getElementById('sheetArea').style.display !== 'none') {
+            var rader = document.querySelectorAll('#tableBody tr');
+            rader.forEach(rad => oppdaterRadSats(rad.querySelector('.dag-type')));
+            beregnTotal();
+        }
+    }
+
+    function lagTimeliste() {
+        var startStr = document.getElementById('dateStart').value;
+        var endStr = document.getElementById('dateEnd').value;
+        if(!startStr || !endStr) return alert("Velg datoer.");
+        var start = new Date(startStr);
+        var end = new Date(endStr);
+        if(start > end) return alert("Feil datoer.");
+
+        var tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+        
+        var curr = new Date(start);
+        while(curr <= end) {
+            var day = curr.getDay();
+            var erHelg = (day===0 || day===6);
+            var datoStr = curr.toLocaleDateString('no-NO');
+            
+            var tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${datoStr}</strong><br>
+                    <select class="dag-type" onchange="oppdaterRadSats(this)" style="font-size:0.8em; border:none; background:transparent;">
+                        <option value="wd" ${!erHelg?'selected':''}>Hverdag</option>
+                        <option value="we" ${erHelg?'selected':''}>Helg</option>
+                    </select>
+                </td>
+                <td class="sats-display" style="font-weight:bold;"></td>
+                
+                <td class="col-fratrekk"><input type="text" inputmode="decimal" class="t-ord small-num" placeholder="0" oninput="beregnTotal()" style="color:#e11d48; font-weight:bold;"></td>
+                
+                <td><input type="text" inputmode="decimal" class="t-aktiv small-num" placeholder="0" oninput="beregnTotal()"></td>
+                <td><input type="text" inputmode="decimal" class="t-reiseu small-num" placeholder="0" oninput="beregnTotal()"></td>
+                <td><input type="text" inputmode="decimal" class="t-passiv small-num" placeholder="0" oninput="beregnTotal()"></td>
+                <td><input type="text" inputmode="decimal" class="t-utrykk small-num" placeholder="0" oninput="beregnTotal()" style="font-weight:bold;"></td>
+            `;
+            tbody.appendChild(tr);
+            oppdaterRadSats(tr.querySelector('.dag-type'));
+            curr.setDate(curr.getDate()+1);
+        }
+        document.getElementById('sheetArea').style.display = 'block';
+        document.getElementById('resultArea').style.display = 'block';
+        beregnTotal();
+    }
+
+    function oppdaterRadSats(select) {
+        var type = document.getElementById('selectType').value;
+        var tdSats = select.closest('tr').querySelector('.sats-display');
+        tdSats.innerText = SATS[type][select.value];
+        beregnTotal();
+    }
+
+    function beregnTotal() {
+        var type = document.getElementById('selectType').value;
+        var rader = document.querySelectorAll('#tableBody tr');
+        
+        var totalSats = 0;
+        var sumWeightedHours = 0;
+        var sumOrdinary = 0;
+        var dager = 0;
+        
+        var rawAktiv = 0; var rawReiseU = 0; var rawPassiv = 0; var rawUtrykk = 0;
+
+        rader.forEach(rad => {
+            dager++;
+            totalSats += parseFloat(rad.querySelector('.sats-display').innerText) || 0;
+            
+            var tOrd = lesTall(rad.querySelector('.t-ord').value);
+            var tAkt = lesTall(rad.querySelector('.t-aktiv').value);
+            var tReisU = lesTall(rad.querySelector('.t-reiseu').value);
+            var tPas = lesTall(rad.querySelector('.t-passiv').value);
+            var tUtr = lesTall(rad.querySelector('.t-utrykk').value);
+
+            rawAktiv += tAkt; rawReiseU += tReisU; rawPassiv += tPas; rawUtrykk += tUtr;
+            sumOrdinary += tOrd;
+
+            // Vekting
+            var dayValue = (tAkt * 1) + (tReisU * 0.5) + (tPas / 3) + (tUtr * 1.5);
+            sumWeightedHours += dayValue;
+        });
+
+        var netPayableHours = sumWeightedHours - sumOrdinary;
+        if(type !== "DEL1" && sumOrdinary === 0) {
+            // Fallback for Del 2 hvis man ikke bruker ordinær tid kolonnen
+            var godskrevetTotal = dager * SATS[type].freeHours;
+            netPayableHours = sumWeightedHours - godskrevetTotal;
+        }
+        
+        if (netPayableHours < 0) netPayableHours = 0;
+        var lonnskrav = netPayableHours * timesats;
+        var totalKrav = totalSats + lonnskrav;
+
+        var html = `
+            <table style="width:100%; border-collapse:collapse; border:none;">
+                <tr>
+                    <td style="text-align:left; border:none;"><strong>1. SGS Tillegg (Ulempe):</strong></td>
+                    <td style="text-align:right; border:none;">${dager} døgn = kr ${kr(totalSats)}</td>
+                </tr>
+                <tr><td colspan="2" style="border-bottom:1px solid #ccc; padding:5px 0;"></td></tr>
+                <tr>
+                    <td style="text-align:left; border:none; padding-top:10px;">
+                        <strong>2. Opptjent tid (Vektet):</strong><br>
+                        <span style="font-size:0.85em; color:#666;">
+                        (Aktiv: ${rawAktiv}t) + (Reise 50%: ${rawReiseU}t) + <br>(Passiv 33%: ${rawPassiv}t) + (Utrykning 150%: ${rawUtrykk}t)
+                        </span>
+                    </td>
+                    <td style="text-align:right; vertical-align:top; border:none; padding-top:10px;"><strong>${kr(sumWeightedHours)} timer</strong></td>
+                </tr>
+                <tr>
+                    <td style="color:#e11d48; border:none;"><strong>3. Fratrekk (Ordinær lønn):</strong></td>
+                    <td style="text-align:right; color:#e11d48; border:none;"><strong>- ${kr(sumOrdinary)} timer</strong></td>
+                </tr>
+                <tr><td colspan="2" style="border-bottom:1px solid #ccc; padding:5px 0;"></td></tr>
+                <tr>
+                    <td style="border:none; padding-top:10px;"><strong>4. Netto timer til utbetaling:</strong></td>
+                    <td style="text-align:right; border:none; padding-top:10px;">${kr(netPayableHours)} timer</td>
+                </tr>
+                <tr>
+                    <td style="border:none;"><em>Lønn for netto timer:</em></td>
+                    <td style="text-align:right; border:none;"><em>kr ${kr(lonnskrav)}</em></td>
+                </tr>
+                <tr style="font-size:1.2em; font-weight:bold; border-top:2px solid #000;">
+                    <td style="padding-top:15px; border:none;">TOTALT KRAV:</td>
+                    <td style="text-align:right; padding-top:15px; border:none;">kr ${kr(totalKrav)}</td>
+                </tr>
+            </table>
+        `;
+        document.getElementById('resultContent').innerHTML = html;
+    }
+</script>
+
+</body>
+</html>
