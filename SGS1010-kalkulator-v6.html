@@ -48,11 +48,13 @@
     .result-area { background: #fcfcfc; border: 2px solid #e5e7eb; color: #333; padding: 20px; border-radius: 8px; margin-top: 20px; display: none; }
     
     /* Detaljert beregning */
-    .details-box { margin-top: 20px; background: #f1f5f9; padding: 15px; border-radius: 5px; border: 1px solid #e2e8f0; font-size: 0.85em; color: #475569; }
+    .details-box { margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 5px; border: 1px solid #e2e8f0; font-size: 0.85em; color: #334155; }
     .details-box h4 { margin-top: 0; color: #334155; margin-bottom: 10px; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px; }
     .details-list { list-style: none; padding: 0; margin: 0; }
-    .details-list li { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px dashed #cbd5e1; }
+    .details-list li { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1; }
     .details-list li:last-child { border-bottom: none; }
+    .calc-part { color: #64748b; font-style: italic; display: block; margin-bottom: 2px; }
+    .calc-result { font-weight: bold; color: #0f172a; }
 
     .signature-section { display: none; margin-top: 50px; }
 
@@ -114,12 +116,6 @@
         body.landscape-mode .result-area { padding: 10px !important; }
         body.landscape-mode .big-sum { font-size: 12pt; }
         body.landscape-mode .signature-section { margin-top: 20px; padding-top: 0; }
-    }
-    @media print {
-        body.landscape-mode { width: 100%; }
-        @page { size: A4 landscape; margin: 10mm; }
-        body.portrait-mode { width: 100%; }
-        @page { size: A4 portrait; margin: 10mm; }
     }
 </style>
 </head>
@@ -470,14 +466,28 @@
 
             // Faktisk arbeid (vektet)
             var actualWork = (tAkt * 1) + (tReisU * 0.5) + (tPas / 3) + (tUtr * 1.5);
+            
+            // Bygg forklaringstekst for vektingen hvis det er timer
+            var workBreakdown = [];
+            if(tAkt > 0) workBreakdown.push(`${nr(tAkt)}t aktiv`);
+            if(tReisU > 0) workBreakdown.push(`${nr(tReisU)}t reise(50%)`);
+            if(tPas > 0) workBreakdown.push(`${nr(tPas)}t passiv(33%)`);
+            if(tUtr > 0) workBreakdown.push(`${nr(tUtr)}t utrykning(150%)`);
+            
+            var workStr = workBreakdown.length > 0 ? workBreakdown.join(' + ') : "0t";
 
             if (type === "DEL1") {
                 // Del I: Alt arbeid minus ordinær tid
                 var dayNet = actualWork - tOrd;
                 sumPayableHours += dayNet;
                 
-                // Legg til detaljlinje
-                detailsHTML += `<li><strong>${dato}:</strong> Faktisk arbeid ${nr(actualWork)}t - Ordinær ${nr(tOrd)}t = <strong>${nr(dayNet)}t</strong></li>`;
+                // Legg til detaljlinje for Del I
+                if (actualWork > 0 || tOrd > 0) {
+                    detailsHTML += `<li>
+                        <strong>${dato}:</strong> <span class="calc-part">Arbeidstid: ${workStr} = ${nr(actualWork)}t</span>
+                        <span class="calc-result">Resultat: ${nr(actualWork)}t - Ordinær ${nr(tOrd)}t = <strong>${nr(dayNet)}t</strong></span>
+                    </li>`;
+                }
             } else {
                 // Del II:
                 var guaranteedHours = SATS[type].freeHours;
@@ -491,8 +501,13 @@
                 var dayNet = baseSurplus + extraWork;
                 sumPayableHours += dayNet;
 
-                // Detaljert visning
-                detailsHTML += `<li><strong>${dato}:</strong> (Godskrevet ${guaranteed}t - Ord. ${nr(tOrd)}t) + Merarbeid ${nr(extraWork)}t = <strong>${nr(dayNet)}t</strong></li>`;
+                // Detaljert visning for Del II
+                if (guaranteedHours > 0 || tOrd > 0) {
+                    detailsHTML += `<li>
+                        <strong>${dato}:</strong> <span class="calc-part">Faktisk arbeid: ${workStr} = ${nr(actualWork)}t</span>
+                        <span class="calc-result">Resultat: (Godskrevet ${guaranteedHours}t - Ord. ${nr(tOrd)}t) + Merarbeid ${nr(extraWork)}t = <strong>${nr(dayNet)}t</strong></span>
+                    </li>`;
+                }
             }
         });
 
