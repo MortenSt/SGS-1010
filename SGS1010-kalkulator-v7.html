@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kravskjema SGS 1010</title>
+<style>
+    /* --- SKJERMSTIL --- */
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; padding: 20px; color: #333; margin: 0; }
+    .container { max-width: 1100px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    
+    h1 { color: #0056b3; margin-top: 0; border-bottom: 3px solid #0056b3; padding-bottom: 10px; }
+    h2, h3 { color: #444; margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    
+    .panel { background: #e7f3ff; padding: 20px; border-radius: 8px; border: 1px solid #b3d7ff; margin-bottom: 20px; }
+    
+    .row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 15px; }
+    .col { flex: 1; min-width: 150px; }
+    
+    label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.85em; color: #555; text-transform: uppercase; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; box-sizing: border-box; }
+    
+    #outputRate { background-color: #d1fae5; border-color: #34d399; color: #065f46; font-weight: bold; }
+
+    /* Logo */
+    .school-logo { width: 100%; height: auto; max-width: 280px; display: block; margin: 0 auto; }
+
+    /* Knapper */
+    .btn-group { margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px; display: flex; gap: 10px; align-items: center; }
+    .btn-action { background-color: #2563eb; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+    .btn-action:hover { background-color: #1d4ed8; }
+    .btn-secondary { background-color: #64748b; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .btn-secondary:hover { background-color: #475569; }
+    .btn-print { background-color: #059669; float: right; }
+    .btn-print:hover { background-color: #047857; }
+
+    /* Tabell */
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
+    th { background: #f8f9fa; text-align: center; padding: 10px; border: 1px solid #ddd; vertical-align: bottom; font-weight: 600; }
+    td { padding: 8px; border: 1px solid #ddd; text-align: center; }
+    input.small-num { width: 100%; text-align: center; }
+
+    .th-fratrekk { background-color: #fff1f2; border-bottom: 2px solid #e11d48; color: #9f1239; }
+    .th-pluss { background-color: #f0fdf4; border-bottom: 2px solid #16a34a; color: #166534; }
+    
+    .result-area { background: #fcfcfc; border: 2px solid #e5e7eb; color: #333; padding: 20px; border-radius: 8px; margin-top: 20px; display: none; }
+    .big-sum { font-size: 1.6em; font-weight: 800; color: #16a34a; margin-top: 15px; border-top: 2px solid #eee; padding-top: 15px; }
+    
+    .signature-section { display: none; margin-top: 50px; }
+
+    /* --- SIDEBAR --- */
+    #sgsSidebar { position: fixed; top: 0; right: -450px; width: 450px; height: 100%; background: #fff; box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: right 0.3s ease; z-index: 9999; overflow-y: auto; border-left: 4px solid #0056b3; }
+    #sgsSidebar.open { right: 0; }
+    #sgsToggleBtn { position: fixed; right: 0; top: 150px; width: 40px; height: 140px; background: #0056b3; color: white; border-radius: 8px 0 0 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; box-shadow: -2px 2px 5px rgba(0,0,0,0.2); writing-mode: vertical-rl; text-orientation: mixed; z-index: 10000; font-size: 14px; letter-spacing: 1px; }
+    #sgsSidebar.open ~ #sgsToggleBtn { display: none; }
+    .sgs-content { padding: 25px; font-size: 0.95em; line-height: 1.5; }
+    .sgs-content h2 { margin-top: 0; color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .sgs-content h4 { margin-top: 20px; margin-bottom: 5px; color: #444; background: #e7f3ff; padding: 5px; border-radius: 4px; }
+    .sgs-content ul { padding-left: 20px; margin-top: 5px; }
+    .sgs-content li { margin-bottom: 5px; }
+    .close-btn { float: right; cursor: pointer; font-size: 2em; color: #999; margin-top:-10px;}
+
+    /* --- PRINT --- */
+    @media print {
+        #sgsSidebar, #sgsToggleBtn, .no-print, button, #infoText { display: none !important; }
+        body { background: white; padding: 0; color: black; font-family: 'Times New Roman', serif; }
+        .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; margin: 0; }
+        .panel, .result-area { background: white !important; border: none !important; padding: 0 !important; margin-bottom: 5px !important; }
+        input, select { border: none; border-bottom: 1px solid #ccc; background: transparent; padding: 1px 0; font-weight: bold; font-family: inherit; border-radius: 0; width: 100%; -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+        table { border: 1px solid black; width: 100%; margin-top: 5px; }
+        th, td { border: 1px solid black; text-align: center; }
+        th { background-color: #eee !important; font-weight: bold; color: black !important; border-bottom: 1px solid black !important; }
+        .result-area { display: block !important; border: 1px solid black !important; margin-top: 10px; }
+        .big-sum { border-top: 1px solid black; color: black !important; margin-top: 5px; padding-top: 5px; }
+        .signature-section { display: flex; justify-content: space-between; page-break-inside: avoid; }
+        .sig-block { width: 30%; }
+        .sig-line { border-top: 1px solid black; margin-top: 30px; }
+        h1 { margin-bottom: 10px; border-bottom: 2px solid black; text-align: center; margin-top:0; padding-bottom:5px;}
+        h3 { margin-top: 10px; border-bottom: 1px solid black; text-transform: uppercase; margin-bottom: 5px; }
+        .row { display: flex; gap: 15px; margin-bottom: 5px; }
+        .col { flex: 1; }
+        label { margin-bottom: 0; color: #000; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .school-logo { max-width: 200px !important; }
+    }
+    @media print {
+        body.portrait-mode { font-size: 8pt; }
+        body.portrait-mode input, body.portrait-mode select { font-size: 8pt; }
+        body.portrait-mode th, body.portrait-mode td { padding: 2px 4px; font-size: 7.5pt; }
+        body.portrait-mode h1 { font-size: 14pt; }
+        body.portrait-mode h3 { font-size: 10pt; }
+        body.portrait-mode label { font-size: 7pt; }
+        body.portrait-mode .result-area { padding: 8px !important; }
+        body.portrait-mode .big-sum { font-size: 11pt; }
+        body.portrait-mode .signature-section { margin-top: 30px; padding-top: 10px; }
+        @page { size: A4 portrait; margin: 10mm; }
+    }
+    @media print {
+        body.landscape-mode { font-size: 9pt; }
+        body.landscape-mode input, body.landscape-mode select { font-size: 9pt; }
+        body.landscape-mode th, body.landscape-mode td { padding: 3px 5px; font-size: 8.5pt; }
+        body.landscape-mode h1 { font-size: 16pt; }
+        body.landscape-mode h3 { font-size: 11pt; }
+        body.landscape-mode label { font-size: 8pt; }
+        body.landscape-mode .result-area { padding: 10px !important; }
+        body.landscape-mode .big-sum { font-size: 12pt; }
+        body.landscape-mode .signature-section { margin-top: 20px; padding-top: 0; }
+    }
+    @media print {
+        body.landscape-mode { width: 100%; }
+        @page { size: A4 landscape; margin: 10mm; }
+        body.portrait-mode { width: 100%; }
+        @page { size: A4 portrait; margin: 10mm; }
+    }
+</style>
+</head>
+<body class="portrait-mode">
+
+<div id="sgsSidebar">
+    <div class="sgs-content">
+        <span class="close-btn" onclick="toggleSidebar()">&times;</span>
+        <h2>SGS 1010 - Kortversjon</h2>
+        <p>Her er en oppsummering av de viktigste reglene fra Særavtale for reiser med elever (2025).</p>
+
+        <h4>Del I - Elevfølge / Reiser i Norge</h4>
+        <ul>
+            <li><strong>Sats:</strong> kr 525,- pr døgn.</li>
+            <li><strong>Vilkår:</strong> Turen må vare i minst 6 timer. Nytt døgntillegg utløses når nytt døgn har vart i 6 timer.</li>
+            <li><strong>Lønn:</strong> Du får betalt for <em>faktisk medgått tid</em> minus din ordinære arbeidstid.</li>
+            <li><strong>Arbeidsplan:</strong> Kan avtales inntil 10t aktivt + 6t passivt. Alt utover dette er avvik/overtid.</li>
+        </ul>
+
+        <h4>Del II A - Leirskole (Bemannet)</h4>
+        <ul>
+            <li><strong>Sats:</strong> kr 1 545,- pr døgn.</li>
+            <li><strong>Godskriving:</strong> Du godskrives 9 timer pr. døgn uansett faktisk arbeidstid.</li>
+            <li><strong>Beregning:</strong> Du får betalt for differansen mellom 9 timer (eller faktisk arbeid hvis høyere) og din ordinære arbeidstid.</li>
+        </ul>
+
+        <h4>Del II B - Utenlandstur</h4>
+        <ul>
+            <li><strong>Sats:</strong> kr 1 870,- pr døgn.</li>
+            <li><strong>Godskriving:</strong> Du godskrives 12 timer pr. døgn uansett faktisk arbeidstid.</li>
+            <li><strong>Beregning:</strong> Du får betalt for differansen mellom 12 timer (eller faktisk arbeid hvis høyere) og din ordinære arbeidstid.</li>
+            <li><em>Eksempel:</em> Har du 7,5t ordinær dag, får du automatisk 4,5t pluss (12 - 7,5) hver dag.</li>
+        </ul>
+
+        <h4>Tilleggssatser (Timeberegning)</h4>
+        <ul>
+            <li><strong>Aktiv tid / Tilsyn:</strong> 100% timelønn (1:1).</li>
+            <li><strong>Reise uten tilsyn:</strong> 50% timelønn (1/2).</li>
+            <li><strong>Passiv tid / Hvile:</strong> 33% timelønn (1/3).</li>
+            <li><strong>Utrykning:</strong> Hvis passiv tid avbrytes (f.eks. uro på natt), betales medgått tid med <strong>150%</strong> (1 1/2).</li>
+        </ul>
+        
+        <div style="margin-top:20px; font-size:0.8em; color:#666; border-top:1px solid #ccc; padding-top:10px;">
+            <em>Merk: Dette er en forenklet oversikt.</em>
+        </div>
+    </div>
+</div>
+<div id="sgsToggleBtn" onclick="toggleSidebar()">📘 REGELVERK SGS 1010</div>
+<div class="container">
+    <div style="text-align:center; margin-bottom:20px;">
+        <svg class="school-logo" xmlns="http://www.w3.org/2000/svg" id="Layer_2" viewBox="0 0 893 333.6773"><g id="Components"><g id="c131ce72-889c-4597-b822-bd0a115a228d_1"><path d="M323.6182,91.1043h10.2766v58.9655h-10.2766v-26.4492h-24.4276v26.4492h-10.2766v-58.9655h10.2766v22.2374h24.4276v-22.2374Z" style="fill:#333"></path><path d="M362.5365,151.165c-3.8745,0-7.4071-.9981-10.5931-2.9896-3.1883-1.9939-5.7274-4.6762-7.6243-8.0447-1.8945-3.3708-2.8418-7.0906-2.8418-11.1614,0-3.0613.5476-5.9331,1.6427-8.6131,1.0951-2.6823,2.6038-5.0412,4.5283-7.0767,1.9222-2.0354,4.161-3.6296,6.7163-4.7802s5.2792-1.7282,8.1718-1.7282c3.2854,0,6.2958.6954,9.0336,2.0863,2.7378,1.3885,5.062,3.2923,6.9704,5.7066,1.9107,2.4143,3.2992,5.166,4.1702,8.255.871,3.089,1.0674,6.3189.5891,9.6874h-30.7881c.3928,1.5734,1.0397,2.985,1.9384,4.2326.8964,1.2499,2.0354,2.248,3.4101,2.9919,1.377.7439,2.9342,1.1298,4.6762,1.1575,1.7952.0277,3.4332-.3997,4.9072-1.2846,1.474-.8849,2.7008-2.0863,3.6851-3.6019l10.4868,2.4444c-1.712,3.7336-4.2673,6.7879-7.6658,9.1607-3.3963,2.3728-7.2015,3.558-11.4133,3.558ZM352.1745,124.7989h20.7218c-.3073-1.6843-.9611-3.2068-1.9569-4.5699-.9981-1.3608-2.2272-2.449-3.6851-3.2646-1.4602-.8133-3.0335-1.2222-4.7178-1.2222s-3.2438.402-4.6762,1.2014-2.6454,1.8806-3.6435,3.2438c-.9958,1.3608-1.6773,2.8995-2.0424,4.6115Z" style="fill:#333"></path><path d="M391.1344,150.0698v-63.1773h10.2766v63.1773h-10.2766Z" style="fill:#333"></path><path d="M434.0936,118.2282h-8.1718v31.8416h-10.2766v-31.8416h-6.2334v-10.2766h6.2334v-13.2246h10.2766v13.2246h8.1718v10.2766Z" style="fill:#333"></path><path d="M464.08,106.771c4.0986,0,7.8345.9981,11.203,2.9919,3.3708,1.9939,6.0509,4.6693,8.0447,8.0239,1.9939,3.3547,2.9896,7.0674,2.9896,11.1406,0,3.0589-.5753,5.9377-1.7259,8.6339-1.1506,2.6939-2.7447,5.0597-4.7802,7.0952-2.0354,2.0378-4.3943,3.6296-7.0767,4.7825-2.68,1.1506-5.5657,1.7259-8.6547,1.7259-2.6408,0-4.9766-.5961-7.012-1.7905-2.0378-1.1922-3.7428-2.7447-5.1175-4.6531v5.3485h-10.2766v-63.1773h10.2766v26.3245c1.3747-1.9107,3.0797-3.4609,5.1175-4.6554,2.0354-1.1922,4.3712-1.7905,7.012-1.7905ZM463.9529,141.2257c2.1902,0,4.1772-.5545,5.9608-1.6635,1.7836-1.109,3.2068-2.5922,4.2742-4.4452,1.0674-1.8529,1.6011-3.9161,1.6011-6.1895,0-2.248-.5337-4.3042-1.6011-6.171-1.0674-1.8668-2.4998-3.3477-4.295-4.4429-1.7975-1.0951-3.7775-1.6427-5.94-1.6427-2.1325,0-4.0432.5545-5.7274,1.6635-1.6843,1.109-3.0058,2.5969-3.96,4.4637-.9542,1.8668-1.4301,3.9115-1.4301,6.1294,0,2.2734.4759,4.3435,1.4301,6.2103.9542,1.8691,2.2757,3.35,3.96,4.4452,1.6843,1.0951,3.5949,1.6427,5.7274,1.6427Z" style="fill:#333"></path><path d="M512.4316,151.165c-3.8745,0-7.4071-.9981-10.5931-2.9896-3.1883-1.9939-5.7274-4.6762-7.6243-8.0447-1.8945-3.3708-2.8418-7.0906-2.8418-11.1614,0-3.0613.5476-5.9331,1.6427-8.6131,1.0951-2.6823,2.6038-5.0412,4.5283-7.0767,1.9222-2.0354,4.161-3.6296,6.7163-4.7802,2.5553-1.1506,5.2792-1.7282,8.1718-1.7282,3.2854,0,6.2958.6954,9.0336,2.0863,2.7378,1.3885,5.062,3.2923,6.9704,5.7066,1.9107,2.4143,3.2992,5.166,4.1702,8.255s1.0674,6.3189.5891,9.6874h-30.7881c.3928,1.5734,1.0397,2.985,1.9384,4.2326.8964,1.2499,2.0354,2.248,3.4101,2.9919,1.377.7439,2.9342,1.1298,4.6762,1.1575,1.7952.0277,3.4332-.3997,4.9072-1.2846,1.474-.8849,2.7008-2.0863,3.6851-3.6019l10.4868,2.4444c-1.712,3.7336-4.2673,6.7879-7.6658,9.1607-3.3963,2.3728-7.2015,3.558-11.4133,3.558ZM502.0696,124.7989h20.7218c-.3073-1.6843-.9611-3.2068-1.9569-4.5699-.9981-1.3608-2.2272-2.449-3.6851-3.2646-1.4602-.8133-3.0335-1.2222-4.7178-1.2222s-3.2438.402-4.6762,1.2014-2.6454,1.8806-3.6435,3.2438c-.9958,1.3608-1.6773,2.8995-2.0424,4.6115Z" style="fill:#333"></path><path d="M541.0711,150.0698l-.0416-42.1182h10.2766l.0416,3.7474c1.4324-1.5156,3.1444-2.7147,5.1383-3.5996,1.9939-.8849,4.1425-1.3285,6.4436-1.3285,1.5433,0,3.089.2264,4.6346.6746l-4.0455,10.362c-1.0674-.4228-2.1325-.633-3.1999-.633-1.6565,0-3.1652.402-4.5283,1.2014-1.3608.7994-2.4421,1.8806-3.2415,3.2438-.8017,1.3608-1.2014,2.8695-1.2014,4.526v23.924h-10.2766Z" style="fill:#333"></path><path d="M602.7105,107.9516h10.2766v42.9176c0,3.0335-.6169,5.7921-1.8529,8.2781-1.2361,2.4837-2.9203,4.6184-5.0528,6.4021-2.1348,1.7813-4.5769,3.1583-7.3285,4.1263-2.754.968-5.6443,1.4532-8.6778,1.4532-2.948,0-5.7829-.603-8.5068-1.8113-2.7239-1.2083-5.1314-2.8579-7.2246-4.9488-2.0909-2.0909-3.6851-4.4706-4.7802-7.1391l9.394-4.2534c.5614,1.5433,1.4093,2.8995,2.546,4.064,1.139,1.1644,2.4513,2.077,3.9392,2.7378,1.4879.6585,3.0335.9888,4.6323.9888,1.6288,0,3.1953-.2241,4.697-.6723,1.5017-.4505,2.8556-1.1021,4.064-1.9592,1.2083-.8572,2.1556-1.8945,2.8441-3.1167.6862-1.2222,1.0304-2.6038,1.0304-4.1494v-5.9377c-1.3192,1.8529-2.9758,3.3547-4.9696,4.5075-1.9939,1.1506-4.295,1.7259-6.908,1.7259-3.0312,0-5.8684-.5753-8.5068-1.7259-2.6408-1.1529-4.9627-2.7447-6.9704-4.7825-2.0077-2.0354-3.5811-4.3851-4.7178-7.0536-1.1367-2.6685-1.7051-5.531-1.7051-8.5923s.5684-5.9238,1.7051-8.5923c1.1367-2.6662,2.7101-5.0181,4.7178-7.0559,2.0077-2.0354,4.3297-3.6273,6.9704-4.7802,2.6385-1.1506,5.4756-1.7259,8.5068-1.7259,2.613,0,4.9142.5684,6.908,1.7051,1.9939,1.1367,3.6504,2.6338,4.9696,4.4868v-5.0967ZM590.9599,141.2673c2.1625,0,4.0778-.5545,5.7505-1.6635,1.6681-1.109,2.9827-2.5969,3.9369-4.466.9542-1.8668,1.4324-3.9092,1.4324-6.1271,0-2.2457-.4852-4.2973-1.4532-6.1502-.968-1.8529-2.2896-3.3408-3.96-4.4637-1.6704-1.1228-3.5718-1.6843-5.7066-1.6843-2.1048,0-4.0293.5545-5.769,1.6635-1.742,1.109-3.1329,2.5899-4.1702,4.4429-1.0397,1.8529-1.5595,3.9184-1.5595,6.1918s.5198,4.3389,1.5595,6.1918c1.0374,1.8529,2.4282,3.3269,4.1702,4.4221,1.7397,1.0951,3.6643,1.6427,5.769,1.6427Z" style="fill:#333"></path><path d="M288.914,251.1535v-58.9655h21.0591c3.1999,0,6.0994.7994,8.6963,2.4005,2.5969,1.6011,4.6554,3.7474,6.171,6.4436,1.5156,2.6962,2.2734,5.6581,2.2734,8.888,0,3.3131-.7786,6.3096-2.3358,8.992-1.5595,2.6823-3.6435,4.8148-6.2565,6.4021-2.6107,1.5872-5.4617,2.3797-8.5484,2.3797h-10.7825v23.4596h-10.2766ZM299.1906,217.4174h9.6874c1.4578,0,2.7932-.365,4.0016-1.0951,1.206-.7301,2.1671-1.712,2.8834-2.948.7162-1.2361,1.0743-2.613,1.0743-4.1286,0-1.5433-.3581-2.9342-1.0743-4.1702-.7162-1.2337-1.6773-2.218-2.8834-2.948-1.2083-.7301-2.5437-1.0951-4.0016-1.0951h-9.6874v16.3852Z" style="fill:#333"></path><path d="M335.5814,251.1535l-.0416-42.1182h10.2766l.0416,3.7474c1.4324-1.5156,3.1444-2.7147,5.1383-3.5996,1.9939-.8849,4.1425-1.3285,6.4436-1.3285,1.5433,0,3.089.2264,4.6346.6746l-4.0455,10.362c-1.0674-.4228-2.1325-.633-3.1999-.633-1.6565,0-3.1652.402-4.5283,1.2014-1.3608.7994-2.4421,1.8806-3.2415,3.2438-.8017,1.3608-1.2014,2.8695-1.2014,4.526v23.924h-10.2766Z" style="fill:#333"></path><path d="M373.192,203.6013c-1.5156,0-2.7932-.4967-3.8329-1.4948-1.0397-.9958-1.5572-2.2526-1.5572-3.7705,0-1.4879.5175-2.7355,1.5572-3.7474,1.0397-1.0119,2.3034-1.5156,3.7913-1.5156s2.7447.5037,3.7682,1.5156c1.0258,1.0119,1.5387,2.2596,1.5387,3.7474,0,1.5179-.506,2.7748-1.5156,3.7705-1.0119.9981-2.2619,1.4948-3.7497,1.4948ZM367.9706,209.0353h10.2766v42.1182h-10.2766v-42.1182Z" style="fill:#333"></path><path d="M414.423,251.1535h-13.2662l-15.3317-42.1598h10.9512l11.0344,30.3237,10.9928-30.3237h10.9512l-15.3317,42.1598Z" style="fill:#333"></path><path d="M466.0935,209.0353h10.2766v42.1182h-10.2766l-.4621-5.2238c-1.1529,1.883-2.6754,3.4055-4.5699,4.5699-1.8968,1.1667-4.1356,1.749-6.7186,1.749-3.1167,0-6.037-.5891-8.761-1.7698-2.7239-1.1783-5.1175-2.8071-7.1807-4.8841-2.0632-2.0793-3.6781-4.4798-4.8449-7.2038-1.1644-2.7216-1.7466-5.6443-1.7466-8.761,0-3.0035.5545-5.8245,1.6635-8.4652,1.109-2.6385,2.6592-4.9558,4.6531-6.9496s4.2973-3.5511,6.908-4.6739c2.6107-1.1228,5.4178-1.6866,8.4236-1.6866,2.7794,0,5.2723.6192,7.4764,1.8552,2.2041,1.2361,4.0778,2.8071,5.6235,4.7155l-.4644-5.3901ZM454.0911,242.351c2.1879,0,4.1263-.5476,5.8106-1.6427,1.6843-1.0951,3.0058-2.5761,3.96-4.4429.9542-1.8668,1.4324-3.9253,1.4324-6.171,0-2.2734-.4782-4.3458-1.4324-6.2126s-2.2827-3.3477-3.9808-4.4429c-1.6981-1.0951-3.6296-1.6427-5.7898-1.6427-2.1625,0-4.1356.5545-5.9192,1.6635-1.7836,1.109-3.1999,2.5899-4.2534,4.4429-1.0535,1.8529-1.5803,3.9184-1.5803,6.1918s.5337,4.3389,1.6011,6.1918,2.4906,3.3269,4.2742,4.4221c1.7836,1.0951,3.7428,1.6427,5.8776,1.6427Z" style="fill:#333"></path><path d="M507.3708,219.3119h-8.1718v31.8416h-10.2766v-31.8416h-6.2334v-10.2766h6.2334v-13.2246h10.2766v13.2246h8.1718v10.2766Z" style="fill:#333"></path><path d="M531.4827,252.2487c-3.8745,0-7.4071-.9981-10.5931-2.9896-3.1883-1.9939-5.7274-4.6762-7.6243-8.0447-1.8945-3.3708-2.8418-7.0906-2.8418-11.1614,0-3.0613.5476-5.9331,1.6427-8.6131,1.0951-2.6823,2.6038-5.0412,4.5283-7.0767,1.9222-2.0354,4.161-3.6296,6.7163-4.7802,2.5553-1.1506,5.2792-1.7282,8.1718-1.7282,3.2854,0,6.2958.6954,9.0336,2.0863,2.7378,1.3885,5.062,3.2923,6.9704,5.7066,1.9107,2.4143,3.2992,5.166,4.1702,8.255.871,3.089,1.0674,6.3189.5891,9.6874h-30.7881c.3928,1.5734,1.0397,2.985,1.9384,4.2326.8964,1.2499,2.0354,2.248,3.4101,2.9919,1.377.7439,2.9342,1.1298,4.6762,1.1575,1.7952.0277,3.4332-.3997,4.9072-1.2846,1.474-.8849,2.7008-2.0863,3.6851-3.6019l10.4868,2.4444c-1.712,3.7336-4.2673,6.7879-7.6658,9.1607-3.3963,2.3728-7.2015,3.558-11.4133,3.558ZM521.1206,225.8826h20.7218c-.3073-1.6843-.9611-3.2068-1.9569-4.5699-.9981-1.3608-2.2272-2.449-3.6851-3.2646-1.4602-.8133-3.0335-1.2222-4.7178-1.2222s-3.2438.402-4.6762,1.2014c-1.4324.7994-2.6454,1.8806-3.6435,3.2438-.9958,1.3608-1.6773,2.8995-2.0424,4.6115Z" style="fill:#333"></path><path d="M609.9547,252.2487c-4.1009,0-7.913-.7994-11.4364-2.4005-3.5233-1.6011-6.5915-3.8121-9.2022-6.6331-2.6107-2.8233-4.6531-6.0786-6.1294-9.7729-1.474-3.692-2.211-7.645-2.211-11.8569,0-4.4359.7948-8.5068,2.3797-12.2127,1.5872-3.7058,3.7567-6.9219,6.5083-9.6458,2.7517-2.7239,5.8753-4.8287,9.3709-6.3166s7.1391-2.2341,10.9304-2.2341c4.2395,0,8.3613.9912,12.3605,2.9711,4.0016,1.9777,7.5318,5.032,10.5931,9.1607l-9.1814,4.928c-1.8806-2.3034-4.0362-4.0224-6.4644-5.1614-2.4305-1.1367-4.9072-1.7051-7.4348-1.7051-2.4698,0-4.8356.506-7.0975,1.5156-2.2596,1.0119-4.2673,2.4374-6.0232,4.2765-1.7536,1.8391-3.1375,4.0016-4.1471,6.4852-1.0119,2.486-1.5156,5.203-1.5156,8.151,0,2.7794.4898,5.397,1.474,7.8553.9819,2.4559,2.3358,4.6046,4.064,6.4436,1.7259,1.8391,3.7266,3.2784,6.0024,4.3158,2.2734,1.0397,4.7155,1.5595,7.3285,1.5595,1.7397,0,3.4448-.2749,5.1175-.8225,1.6704-.5476,3.2415-1.34,4.7155-2.3797,1.474-1.0374,2.7956-2.3011,3.96-3.789,1.1644-1.4879,2.1417-3.1745,2.9273-5.0551h-10.741v-8.9712h22.8289c.1109,4.2973-.5614,8.3266-2.0216,12.0879-1.4602,3.7636-3.5233,7.0906-6.1918,9.9831-2.6685,2.8903-5.769,5.1521-9.3085,6.781-3.5372,1.6265-7.3562,2.4421-11.4549,2.4421Z"></path><path d="M673.9221,209.0353h10.9096l-23.0391,63.1773h-10.9073l7.6219-21.0591-15.163-42.1182h11.2469l9.0544,28.0503,10.2766-28.0503Z" style="fill:#333"></path><path d="M691.2577,251.1535v-42.1182h10.2766v3.7474c1.4324-1.5156,3.1444-2.7147,5.1383-3.5996,1.9939-.8849,4.1402-1.3285,6.4436-1.3285,2.9203,0,5.6073.6885,8.0655,2.0655,2.4559,1.3747,4.4151,3.216,5.8753,5.5172,1.4879-2.3011,3.454-4.1425,5.8961-5.5172,2.4444-1.377,5.1244-2.0655,8.0447-2.0655,3.089,0,5.8892.7532,8.4028,2.2549,2.5137,1.5017,4.5214,3.5095,6.0232,6.0232,1.5017,2.5137,2.2526,5.3139,2.2526,8.4028v26.6179h-10.2766v-23.8801c0-1.6288-.3997-3.1236-1.1991-4.4868-.8017-1.3608-1.8691-2.4559-3.2022-3.2854-1.3331-.8271-2.8279-1.243-4.4844-1.243s-3.1537.402-4.4868,1.2014c-1.3331.7994-2.4074,1.8737-3.2207,3.2207-.8156,1.3493-1.2222,2.8787-1.2222,4.593v23.8801h-10.2766v-23.8801c0-1.7143-.3951-3.2438-1.1806-4.593-.7855-1.347-1.8529-2.4213-3.1999-3.2207-1.347-.7994-2.851-1.2014-4.5075-1.2014-1.6288,0-3.1167.4159-4.4637,1.243-1.347.8294-2.4213,1.9245-3.223,3.2854-.7994,1.3631-1.1991,2.8579-1.1991,4.4868v23.8801h-10.2766Z"></path><path d="M804.6788,224.5357v26.6179h-10.2766v-23.924c0-1.6565-.4066-3.1652-1.2199-4.526-.8156-1.3631-1.9038-2.4444-3.2646-3.2438-1.3631-.7994-2.8718-1.2014-4.5283-1.2014s-3.1652.402-4.5283,1.2014c-1.3608.7994-2.4421,1.8806-3.2415,3.2438-.8017,1.3608-1.2014,2.8695-1.2014,4.526v23.924h-10.2766l-.0416-42.1182h10.2766l.0416,3.7474c1.4324-1.5156,3.1444-2.7147,5.1383-3.5996,1.9939-.8849,4.1425-1.3285,6.4436-1.3285,3.0613,0,5.8545.7532,8.3821,2.2549,2.5276,1.5017,4.5422,3.5095,6.044,6.0232,1.5017,2.5137,2.2526,5.3139,2.2526,8.4028Z" style="fill:#333"></path><path d="M844.8609,209.0353h10.2766v42.1182h-10.2766l-.4621-5.2238c-1.1529,1.883-2.6754,3.4055-4.5699,4.5699-1.8968,1.1667-4.1356,1.749-6.7186,1.749-3.1167,0-6.037-.5891-8.761-1.7698-2.7239-1.1783-5.1175-2.8071-7.1807-4.8841-2.0632-2.0793-3.6781-4.4798-4.8449-7.2038-1.1644-2.7216-1.7466-5.6443-1.7466-8.761,0-3.0035.5545-5.8245,1.6635-8.4652,1.109-2.6385,2.6592-4.9558,4.6531-6.9496s4.2973-3.5511,6.908-4.6739c2.6107-1.1228,5.4178-1.6866,8.4236-1.6866,2.7794,0,5.2723.6192,7.4764,1.8552,2.2041,1.2361,4.0778,2.8071,5.6235,4.7155l-.4644-5.3901ZM832.8585,242.351c2.1879,0,4.1263-.5476,5.8106-1.6427,1.6843-1.0951,3.0058-2.5761,3.96-4.4429.9542-1.8668,1.4324-3.9253,1.4324-6.171,0-2.2734-.4782-4.3458-1.4324-6.2126-.9542-1.8668-2.2827-3.3477-3.9808-4.4429-1.6981-1.0951-3.6296-1.6427-5.7898-1.6427-2.1625,0-4.1356.5545-5.9192,1.6635-1.7836,1.109-3.1999,2.5899-4.2534,4.4429-1.0535,1.8529-1.5803,3.9184-1.5803,6.1918s.5337,4.3389,1.6011,6.1918c1.0674,1.8529,2.4906,3.3269,4.2742,4.4221,1.7836,1.0951,3.7428,1.6427,5.8776,1.6427Z" style="fill:#333"></path><path d="M875.9841,251.9113c-2.1879-.1409-4.3019-.5822-6.3374-1.3262s-3.8398-1.7628-5.4132-3.0543c-1.5711-1.2915-2.7794-2.8348-3.6204-4.6323l8.6755-3.7058c.3373.5614.8849,1.1575,1.6427,1.7882.7578.633,1.6635,1.1598,2.717,1.5803,1.0512.4205,2.211.633,3.4748.633,1.0651,0,2.084-.1479,3.052-.4436.9704-.2957,1.7559-.7509,2.3589-1.3677.603-.6192.9057-1.4186.9057-2.4005,0-1.0397-.3581-1.846-1.0743-2.4236-.7162-.5753-1.615-1.0096-2.6939-1.3054-1.0813-.2934-2.1279-.5684-3.1398-.8202-2.6662-.5337-5.1452-1.3631-7.4325-2.486-2.2896-1.1228-4.1286-2.5761-5.5172-4.3597-1.3908-1.7813-2.0863-3.9369-2.0863-6.4644,0-2.7794.737-5.1799,2.211-7.2015,1.474-2.0216,3.3986-3.5811,5.7713-4.6762,2.3728-1.0951,4.935-1.6427,7.6866-1.6427,3.3408,0,6.409.6954,9.2022,2.084,2.7932,1.3908,5.0043,3.35,6.6331,5.8776l-8.1279,4.801c-.3928-.6746-.9403-1.2984-1.6427-1.8737-.7024-.5753-1.5017-1.0535-2.4005-1.4324-.8987-.3789-1.8391-.5961-2.821-.6538-1.2638-.0554-2.4167.0578-3.454.3373-1.0397.2819-1.876.7578-2.5068,1.4324-.6307.6746-.9473,1.5734-.9473,2.6962,0,1.0674.4205,1.8599,1.2638,2.3797.841.5198,1.8599.9195,3.052,1.1991,1.1945.2819,2.3381.5891,3.4332.9265,2.4698.8156,4.794,1.8113,6.9704,2.9919,2.1764,1.1783,3.923,2.6246,5.2446,4.3366,1.3192,1.7143,1.95,3.7636,1.8945,6.1502,0,2.7239-.8133,5.1036-2.4421,7.1391-1.6288,2.0354-3.729,3.588-6.2981,4.6531-2.5691,1.0674-5.3139,1.4879-8.2342,1.2638Z" style="fill:#333"></path><path d="M70.3337,6.4672C39.1788-11.7605,0,10.7085,0,46.8041v82.0612l70.3337,41.1496V6.4672h0Z" style="fill:#b3c7e7"></path><polygon points=".0002 292.5277 70.3336 333.6773 70.3336 251.7891 .0002 210.6395 .0002 292.5277" style="fill:#b3c7e7"></polygon><path d="M70.3337,169.9922v81.8879l69.3171-40.5541,1.016-.5949v81.8833l70.3337-41.149v-82.283c0-35.648-38.2096-57.9801-69.1675-40.97l-1.1662.6307-70.3331,41.149Z" style="fill:#6f92cc"></path></g></g></svg>
+    </div>
+    <div class="no-print" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; background:#eee; padding:10px; border-radius:5px;">
+        <div>
+            <label style="display:inline-block; margin-right:10px;">Utskriftsformat:</label>
+            <select id="printFormat" onchange="changePrintFormat()" style="width:auto; display:inline-block;">
+                <option value="portrait">📄 Stående (A4)</option>
+                <option value="landscape">📄 Liggende (A4)</option>
+            </select>
+        </div>
+        <button type="button" class="btn-action btn-print" onclick="window.print()" style="margin:0;">🖨️ Skriv ut / PDF</button>
+    </div>
+
+    <h1>Kravskjema: SGS 1010 / Reise</h1>
+
+    <div class="row">
+        <div class="col">
+            <label>Navn</label>
+            <input type="text" placeholder="Navn på ansatt">
+        </div>
+        <div class="col">
+            <label>Ansattnummer</label>
+            <input type="text" placeholder="Ansattnr">
+        </div>
+        <div class="col">
+            <label>Avdeling / Skole</label>
+            <input type="text" placeholder="Arbeidssted">
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3>1. Beregningsgrunnlag</h3>
+        <div class="row">
+            <div class="col">
+                <label>Avtalt Årslønn (Lokal sats)</label>
+                <input type="text" inputmode="numeric" id="inputSalary" value="682500" oninput="beregnTimesats()" placeholder="Lektor 8 år">
+            </div>
+            <div class="col">
+                <label>Årsverk (timer)</label>
+                <input type="text" inputmode="decimal" id="inputHours" value="1687,5" oninput="beregnTimesats()">
+            </div>
+            <div class="col">
+                <label>Timesats (kr)</label>
+                <input type="text" id="outputRate" readonly value="Beregner...">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label>Avtaleverk / Turtype</label>
+            <select id="selectType" onchange="håndterAvtaleValg()">
+                <option value="DEL1">Del I - Elevfølge / Andre reiser (Timeberegning)</option>
+                <option value="IIA">Del II A - Bemannet Leirskole Norge</option>
+                <option value="IIB">Del II B - Utenlandstur</option>
+            </select>
+        </div>
+        <div class="col">
+            <label>Reisemål / Beskrivelse</label>
+            <input type="text" placeholder="Hvor gikk turen?">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label>Avreise (Dato / Tid)</label>
+            <div style="display:flex; gap:10px;">
+                <input type="date" id="dateStart">
+                <input type="time" id="timeStart" value="08:00">
+            </div>
+        </div>
+        <div class="col">
+            <label>Hjemkomst (Dato / Tid)</label>
+            <div style="display:flex; gap:10px;">
+                <input type="date" id="dateEnd">
+                <input type="time" id="timeEnd" value="16:00">
+            </div>
+        </div>
+    </div>
+    
+    <div class="no-print btn-group">
+        <button type="button" class="btn-action" onclick="lagTimeliste()">Generer Timeliste</button>
+        <button type="button" class="btn-secondary" onclick="toggleSidebar()">📘 Se Regelverk</button>
+    </div>
+    <div class="no-print" id="infoText" style="margin-top:10px; font-size:0.9em; color:#555; padding:10px; background:#f9f9f9; border-left:4px solid #2563eb;"></div>
+
+    <div id="sheetArea" style="display:none;">
+        <h3>2. Timeliste</h3>
+        <p class="no-print" style="font-size:0.9em; color:#666;">Fyll inn timer pr. døgn.</p>
+        
+        <table id="calcTable">
+            <thead>
+                <tr>
+                    <th style="width:15%">Dato</th>
+                    <th class="th-fratrekk">Ordinær tid<br><small>(Må fylles ut)</small></th>
+                    <th class="th-pluss">Aktiv/Tilsyn<br><small>(100%)</small></th>
+                    <th class="th-pluss">Reise U/tilsyn<br><small>(50%)</small></th>
+                    <th class="th-pluss">Passiv/Hvile<br><small>(33%)</small></th>
+                    <th class="th-pluss">Utrykning<br><small>(150%)</small></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div id="resultArea" class="result-area">
+        <h3>3. Beregnet Krav</h3>
+        <div id="resultContent"></div>
+    </div>
+
+    <div class="signature-section">
+        <div class="sig-block">
+            <label>Sted og Dato</label>
+            <div class="sig-line"></div>
+        </div>
+        <div class="sig-block">
+            <label>Underskrift Ansatt</label>
+            <div class="sig-line"></div>
+        </div>
+        <div class="sig-block">
+            <label>Godkjent av Leder/Attestant</label>
+            <div class="sig-line"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var timesats = 0;
+    
+    // Satser hentet fra SGS 1010 Protokoll (2025)
+    var SATS = {
+        DEL1: { sats: 525, freeHours: 0, navn: "Del I (Elevfølge)" },
+        IIA:  { sats: 1545, freeHours: 9, navn: "Del II A (Leirskole)" },
+        IIB:  { sats: 1870, freeHours: 12, navn: "Del II B (Utland)" }
+    };
+
+    function toggleSidebar() {
+        var el = document.getElementById('sgsSidebar');
+        el.classList.toggle('open');
+    }
+
+    function changePrintFormat() {
+        var format = document.getElementById('printFormat').value;
+        document.body.className = format + '-mode';
+    }
+
+    function lesTall(val) {
+        if(typeof val !== 'string') return val;
+        var clean = val.replace(/\s/g, '').replace(',', '.');
+        var num = parseFloat(clean);
+        return isNaN(num) ? 0 : num;
+    }
+    
+    function kr(belop) {
+        return belop.toLocaleString('no-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    window.onload = function() {
+        beregnTimesats();
+        håndterAvtaleValg();
+        var today = new Date().toISOString().split('T')[0];
+        if(!document.getElementById('dateStart').value) {
+            document.getElementById('dateStart').value = today;
+            document.getElementById('dateEnd').value = today;
+        }
+    };
+
+    function beregnTimesats() {
+        var lonn = lesTall(document.getElementById('inputSalary').value);
+        var timer = lesTall(document.getElementById('inputHours').value);
+        if (lonn > 0 && timer > 0) {
+            timesats = lonn / timer;
+            document.getElementById('outputRate').value = kr(timesats);
+        } else {
+            timesats = 0;
+        }
+        if(document.getElementById('sheetArea').style.display !== 'none') beregnTotal();
+    }
+
+    function håndterAvtaleValg() {
+        var type = document.getElementById('selectType').value;
+        var txt = "";
+        
+        if(type === "DEL1") {
+            txt = "<strong>Info:</strong> Brukes for elevfølge, pasientreiser og turer som ikke faller inn under leirskoleavtalen. Beregner lønn for medgått tid time-for-time, pluss døgntillegg (kr 525,- pr påbegynt døgn over 6t).";
+        } else {
+            var timer = SATS[type].freeHours;
+            txt = "<strong>Info:</strong> Du godskrives <strong>" + timer + " timer</strong> pr. døgn. Fyll inn din 'Ordinære tid' i skjemaet. Du får betalt differansen (gevinst) pluss eventuelt arbeid utover " + timer + " timer.";
+        }
+        
+        document.getElementById('infoText').innerHTML = txt;
+        
+        if(document.getElementById('sheetArea').style.display !== 'none') {
+            beregnTotal();
+        }
+    }
+
+    function lagTimeliste() {
+        var startStr = document.getElementById('dateStart').value;
+        var endStr = document.getElementById('dateEnd').value;
+        if(!startStr || !endStr) return alert("Vennligst velg start- og sluttdato.");
+        
+        var start = new Date(startStr);
+        var end = new Date(endStr);
+        if(start > end) return alert("Startdato må være før sluttdato.");
+
+        var tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+        
+        var curr = new Date(start);
+        while(curr <= end) {
+            var day = curr.getDay();
+            var erHelg = (day===0 || day===6);
+            var datoStr = curr.toLocaleDateString('no-NO');
+            
+            var tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${datoStr}</strong><br>
+                    <small>${erHelg ? 'Lør/Søn' : 'Hverdag'}</small>
+                </td>
+                
+                <td class="col-fratrekk"><input type="text" inputmode="decimal" class="t-ord small-num" placeholder="F.eks 7,5" oninput="beregnTotal()" style="color:#e11d48; font-weight:bold;"></td>
+                
+                <td><input type="text" inputmode="decimal" class="t-aktiv small-num" placeholder="0" oninput="beregnTotal()"></td>
+                <td><input type="text" inputmode="decimal" class="t-reiseu small-num" placeholder="0" oninput="beregnTotal()"></td>
+                <td><input type="text" inputmode="decimal" class="t-passiv small-num" placeholder="0" oninput="beregnTotal()"></td>
+                <td><input type="text" inputmode="decimal" class="t-utrykk small-num" placeholder="0" oninput="beregnTotal()" style="font-weight:bold;"></td>
+            `;
+            tbody.appendChild(tr);
+            curr.setDate(curr.getDate()+1);
+        }
+        document.getElementById('sheetArea').style.display = 'block';
+        document.getElementById('resultArea').style.display = 'block';
+        beregnTotal();
+    }
+
+    function beregnAntallDogn() {
+        var dStart = document.getElementById('dateStart').value;
+        var tStart = document.getElementById('timeStart').value;
+        var dEnd = document.getElementById('dateEnd').value;
+        var tEnd = document.getElementById('timeEnd').value;
+
+        if(!dStart || !tStart || !dEnd || !tEnd) return 0;
+
+        var startObj = new Date(dStart + 'T' + tStart);
+        var endObj = new Date(dEnd + 'T' + tEnd);
+
+        var diffMs = endObj - startObj;
+        if(diffMs <= 0) return 0;
+
+        var diffHours = diffMs / (1000 * 60 * 60);
+        if(diffHours < 6) return 0;
+
+        var heleDogn = Math.floor(diffHours / 24);
+        var restTimer = diffHours % 24;
+
+        if(restTimer > 6) {
+            return heleDogn + 1;
+        } else {
+            if(heleDogn === 0 && diffHours >= 6) return 1;
+            return heleDogn;
+        }
+    }
+
+    function beregnTotal() {
+        var type = document.getElementById('selectType').value;
+        var rader = document.querySelectorAll('#tableBody tr');
+        var antallSatsDogn = beregnAntallDogn(); 
+        var totalSatsBelop = antallSatsDogn * SATS[type].sats;
+        
+        var sumPayableHours = 0; 
+
+        // Gå gjennom hver dag og beregn basert på avtaletype
+        rader.forEach(rad => {
+            var tOrd = lesTall(rad.querySelector('.t-ord').value);
+            var tAkt = lesTall(rad.querySelector('.t-aktiv').value);
+            var tReisU = lesTall(rad.querySelector('.t-reiseu').value);
+            var tPas = lesTall(rad.querySelector('.t-passiv').value);
+            var tUtr = lesTall(rad.querySelector('.t-utrykk').value);
+
+            // Vektet sum av faktisk arbeid denne dagen
+            var dayWeightedWork = (tAkt * 1) + (tReisU * 0.5) + (tPas / 3) + (tUtr * 1.5);
+
+            if (type === "DEL1") {
+                // Del I: Enkel diff (Arbeid - Ordinær)
+                var dayNet = dayWeightedWork - tOrd;
+                sumPayableHours += dayNet;
+            } else {
+                // Del II (Utland/Leirskole):
+                // Man får godskrevet "SATS_HOURS" (f.eks 12).
+                // Gevinst = SATS_HOURS - Ordinær.
+                // Hvis man jobber MER enn SATS_HOURS, får man det overskytende også.
+                // Formel: Max(FaktiskArbeid, GodskrevetTid) - OrdinærTid
+                
+                var guaranteedHours = SATS[type].freeHours;
+                
+                // Hva er "arbeidstiden" denne dagen? Det er enten garantien (12t) eller det man faktisk jobbet hvis det er mer.
+                var effectiveHours = Math.max(guaranteedHours, dayWeightedWork);
+                
+                var dayNet = effectiveHours - tOrd;
+                sumPayableHours += dayNet;
+            }
+        });
+
+        if (sumPayableHours < 0) sumPayableHours = 0; // Aldri negativ utbetaling totalt
+        var lonnskrav = sumPayableHours * timesats;
+        var totalKrav = totalSatsBelop + lonnskrav;
+
+        var html = `
+            <table style="width:100%; border-collapse:collapse; border:none; font-size:1em;">
+                <tr>
+                    <td style="text-align:left; border:none;"><strong>1. SGS Tillegg (Ulempe/Ansvar) - MÅ UTBETALES:</strong><br>
+                    <small>Basert på tidspunkt: ${document.getElementById('timeStart').value} - ${document.getElementById('timeEnd').value}</small>
+                    </td>
+                    <td style="text-align:right; border:none;">
+                        ${antallSatsDogn} døgn à kr ${SATS[type].sats} = kr ${kr(totalSatsBelop)}
+                    </td>
+                </tr>
+                <tr><td colspan="2" style="border-bottom:1px solid #ccc; padding:5px 0;"></td></tr>
+                
+                <tr>
+                    <td style="border:none; padding-top:5px; font-weight:bold;">2. Netto timer (Tidsbank / Utbetaling):</td>
+                    <td style="text-align:right; border:none; padding-top:5px; font-weight:bold;">${kr(sumPayableHours)} timer</td>
+                </tr>
+                <tr>
+                    <td style="border:none; color:#555;"><em>Verdi av timer (x ${kr(timesats)}):</em></td>
+                    <td style="text-align:right; border:none;"><em>kr ${kr(lonnskrav)}</em></td>
+                </tr>
+                <tr style="font-size:1.3em; font-weight:bold;">
+                    <td style="padding-top:15px; border:none;">TOTALT KRAV (HVIS ALT UTBETALES):</td>
+                    <td style="text-align:right; padding-top:15px; border:none;">kr ${kr(totalKrav)}</td>
+                </tr>
+            </table>
+        `;
+        document.getElementById('resultContent').innerHTML = html;
+    }
+</script>
+
+</body>
+</html>
